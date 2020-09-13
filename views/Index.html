@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat.io</title>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.js" integrity="sha256-DrT5NfxfbHvMHux31Lkhxg42LY6of8TaYyK50jnxRnM=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js" integrity="sha512-v8ng/uGxkge3d1IJuEo6dJP8JViyvms0cly9pnbfRxT6/31c3dRWxIiwGnMSWwZjHKOuY3EVmijs7k1jz/9bLA==" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="Styles.css">
+</head>
+<body>
+    <form id="chat">
+        <input type="text" name="username" placeholder="Digite seu nome">
+        <di class="messages"></di>
+        <input type="text" name="message" placeholder="Digite sua menssagem">
+        <button type="submit">Send</button>
+    </form>
+
+
+    <script type="text/javascript">
+
+        const socket = io('http://192.168.15.10:3000');
+
+        socket.on('perviousMessages', smgs => {
+            for(smg of smgs){
+                renderMessage(smg)
+            }
+        })
+
+        socket.on('receicedMessage', smg => renderMessage(smg));
+
+        $('#chat').submit(e => {
+            e.preventDefault();
+
+            var userName = $('input[name=username]').val();
+            var message = $('input[name=message]').val();
+
+            if(userName.length && message.length){
+                var messageObj = {
+                    userName,
+                    message
+                }
+
+                socket.emit('sendMessage', messageObj);
+                renderMessage(messageObj);
+                $('input[name=message]').val("");
+            }
+        });
+
+        function renderMessage(smg){
+            $('.messages').append(`<div class="message"><strong>${smg.userName}</strong>: ${smg.message}</div>`);
+        }
+
+    </script>
+</body>
+</html>
